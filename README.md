@@ -8,13 +8,12 @@ fast and simple templating for go
 If you need to simply replace placeholders in a template without escaping or logic,
 replacer might be for you.
 
-For the typical scenario is that your template never changes but the replacements for you placeholders, replacer is faster than using (strings|bytes).Replace or regexp.ReplaceAllStringFunc or text/template.
+For the typical scenario - your template never changes on runtime -, replacer is faster than using (strings|bytes).Replace() or regexp.ReplaceAllStringFunc() or the text/template package.
 
 Performance
 -----------
 
-Run benchmarks in benchmark directory.
-I get the following results on my laptop:
+Runing benchmarks in the benchmark directory, I get the following results:
 
 replacing 2 placeholders that occur 2500x in the template
 
@@ -40,11 +39,9 @@ replacing 2 placeholders that occur 1x in the template, parsing template each ti
     BenchmarkOnceTemplate    1 ns/op 2066008619 417,3x (template.Execute)
     BenchmarkOnceReplacer  200 ns/op 8725035      1,8x (replacer.Replace)
 
-See the benchmark directory for the code.
 
-
-Example of usage
-----------------
+Usage
+-----
 
 ```go
 package main
@@ -57,6 +54,7 @@ import (
 
 func main() {
     r := replacer.New()
+    
     // reuse r to speed up parsing of
     // different templates on the fly
     // (for concurrency you need to protect it with a mutex)
@@ -64,14 +62,17 @@ func main() {
     if err != nil {
         panic(err.Error())
     }
+    
     m := map[string]string{
         "animal": "Duck",
         "name":   "Donald",
     }
 
     var buffer bytes.Buffer
+    
     // reuse r with a parsed template to speed up replacement
     r.Replace(m, &buffer)
+    
     // after the replacement you may use the buffer methods Bytes(), String(), Write() or WriteTo()
     // and reuse the same buffer after calling buffer.Reset()
     fmt.Println(buffer.String())
@@ -96,7 +97,7 @@ As long as 1 byte is between them, it is no problem, e.g.
 
     @@firstname@@ @@lastname@@
 
-Documentation
--------------
+GoDoc
+-----
 
 see http://godoc.org/github.com/metakeule/replacer
