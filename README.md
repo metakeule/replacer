@@ -5,7 +5,7 @@ fast and simple templating for go
 
 [![Build Status](https://secure.travis-ci.org/metakeule/replacer.png)](http://travis-ci.org/metakeule/replacer)
 
-If you need to simply replace placeholders in a template withóut escaping or logic,
+If you need to simply replace placeholders in a template without escaping or logic,
 replacer might be for you.
 
 For the typical scenario is that your template never changes but the replacements for you placeholders, replacer is faster than using (strings|bytes).Replace or regexp.ReplaceAllStringFunc or text/template.
