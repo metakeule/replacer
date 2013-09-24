@@ -97,6 +97,17 @@ As long as 1 byte is between them, it is no problem, e.g.
 
     @@firstname@@ @@lastname@@
 
+Status
+------
+
+The package is stable and ready for consumption.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+see LICENSE file.
+
 GoDoc
 -----
 
