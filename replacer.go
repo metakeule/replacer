@@ -9,7 +9,7 @@ import (
 /*
    Usage:
 
-   see README.md
+   see http://github.com/metakeule/replacer
 */
 const DefaultDelimiter = "@@"
 
