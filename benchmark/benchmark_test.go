@@ -32,6 +32,8 @@ var (
 		"@@replacement2@@": "repl2",
 	}
 
+	Strings = []string{"@@replacement1@@", "repl1", "@@replacement2@@", "repl2"}
+
 	StringMap = map[string]string{
 		"replacement1": "repl1",
 		"replacement2": "repl2",
@@ -45,10 +47,12 @@ var (
 	MapM       = map[string]string{}
 	StringMapM = map[string]string{}
 	ByteMapM   = map[string][]byte{}
+	StringsM   = []string{}
 )
 
 var (
 	mapperNaive = &Naive{}
+	naive2      = &Naive2{}
 	mapperReg   = &Regexp{Regexp: regexp.MustCompile("(@@[^@]+@@)")}
 	byts        = &Bytes{}
 	repl        = replacer.New()
@@ -59,6 +63,7 @@ func PrepareM() {
 	MapM = map[string]string{}
 	ByteMapM = map[string][]byte{}
 	StringMapM = map[string]string{}
+	StringsM = []string{}
 	s := []string{}
 	r := []string{}
 	t := []string{}
@@ -71,6 +76,7 @@ func PrepareM() {
 		MapM["@@"+key+"@@"] = val
 		ByteMapM["@@"+key+"@@"] = []byte(val)
 		StringMapM[key] = val
+		StringsM = append(StringsM, "@@"+key+"@@", val)
 	}
 	StringM = strings.Join(s, "")
 	TemplateM = strings.Join(t, "")
@@ -98,6 +104,12 @@ func TestReplace(t *testing.T) {
 	mapperNaive.Template = StringT
 	if r := mapperNaive.Replace(); r != Expected {
 		t.Errorf("unexpected result for %s: %#v", "mapperNaive", r)
+	}
+
+	naive2.Replacements = Strings
+	naive2.Template = StringT
+	if r := naive2.Replace(); r != Expected {
+		t.Errorf("unexpected result for %s: %#v", "naive2", r)
 	}
 
 	mapperReg.Map = Map
@@ -138,6 +150,12 @@ func TestReplaceN(t *testing.T) {
 		t.Errorf("unexpected result for %s: %#v", "mapperNaive", r)
 	}
 
+	naive2.Replacements = Strings
+	naive2.Template = StringN
+	if r := naive2.Replace(); r != ExpectedN {
+		t.Errorf("unexpected result for %s: %#v", "naive2", r)
+	}
+
 	mapperReg.Map = Map
 	mapperReg.Template = StringN
 	mapperReg.Setup()
@@ -171,11 +189,23 @@ func TestReplaceM(t *testing.T) {
 		t.Errorf("unexpected result for %s: %#v", "mapperNaive", r)
 	}
 
+	naive2.Replacements = StringsM
+	naive2.Template = StringM
+	if r := naive2.Replace(); r != ExpectedM {
+		t.Errorf("unexpected result for %s: %#v", "naive2", r)
+	}
+
 	mapperReg.Map = MapM
 	mapperReg.Template = StringM
 	mapperReg.Setup()
 	if r := mapperReg.Replace(); r != ExpectedM {
 		t.Errorf("unexpected result for %s: %#v", "mapperReg", r)
+	}
+
+	naive2.Replacements = StringsM
+	naive2.Template = StringM
+	if r := naive2.Replace(); r != ExpectedM {
+		t.Errorf("unexpected result for %s: %#v", "naive2", r)
 	}
 
 	templ.Parse(TemplateM)
@@ -203,6 +233,16 @@ func BenchmarkNaive(b *testing.B) {
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		mapperNaive.Replace()
+	}
+}
+
+func BenchmarkNaive2(b *testing.B) {
+	b.StopTimer()
+	naive2.Replacements = Strings
+	naive2.Template = StringN
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		naive2.Replace()
 	}
 }
 
@@ -260,6 +300,17 @@ func BenchmarkNaiveM(b *testing.B) {
 	}
 }
 
+func BenchmarkNaive2M(b *testing.B) {
+	b.StopTimer()
+	PrepareM()
+	naive2.Replacements = StringsM
+	naive2.Template = StringM
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		naive2.Replace()
+	}
+}
+
 func BenchmarkRegM(b *testing.B) {
 	b.StopTimer()
 	PrepareM()
@@ -312,6 +363,14 @@ func BenchmarkOnceNaive(b *testing.B) {
 		mapperNaive.Map = Map
 		mapperNaive.Template = StringN
 		mapperNaive.Replace()
+	}
+}
+
+func BenchmarkOnceNaive2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		naive2.Replacements = Strings
+		naive2.Template = StringN
+		naive2.Replace()
 	}
 }
 
