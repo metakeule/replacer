@@ -8,7 +8,7 @@ fast and simple templating for go
 If you need to simply replace placeholders in a template without escaping or logic,
 replacer might be for you.
 
-For the typical scenario - your template never changes on runtime -, replacer is faster than using (strings|bytes).Replace() or regexp.ReplaceAllStringFunc() or the text/template package.
+For the typical scenario - your template never changes on runtime -, replacer is faster than using (strings|bytes).Replace(r)() or regexp.ReplaceAllStringFunc() or the text/template package.
 
 Performance
 -----------
@@ -17,28 +17,30 @@ Runing benchmarks in the benchmark directory, I get the following results:
 
 replacing 2 placeholders that occur 2500x in the template
 
-    BenchmarkNaive      500    6112228 ns/op  3,7x (strings.Replace)
-    BenchmarkReg         50   53740939 ns/op 32,8x (regexp.ReplaceAllStringFunc)
-    BenchmarkByte       500    4627244 ns/op  2,8x (bytes.Replace)
-    BenchmarkTemplate   100   13838150 ns/op  8,4x (template.Execute)
-    BenchmarkReplacer  1000    1640622 ns/op  1,0x (replacer.Replace)
+    BenchmarkNaive      500    3035929 ns/op  3,8x (strings.Replace)
+    BenchmarkNaive2    1000    2595076 ns/op  3,2x (strings.Replacer)
+    BenchmarkReg        100   25882258 ns/op 32,3x (regexp.ReplaceAllStringFunc)
+    BenchmarkByte      1000    2210725 ns/op  2,8x (bytes.Replace)
+    BenchmarkTemplate   500    6373070 ns/op  7,9x (template.Execute)
+    BenchmarkReplacer  2000     802490 ns/op  1,0x (replacer.Replace)
 
 replacing 5000 placeholders that occur 1x in the template
 
-    BenchmarkNaiveM        1   8663141464 ns/op 3941,1x (strings.Replace)
-    BenchmarkRegM         50     63944139 ns/op   29,1x (regexp.ReplaceAllStringFunc)
-    BenchmarkByteM         1   5955402986 ns/op 2709,3x (bytes.Replace)
-    BenchmarkTemplateM   100     13903383 ns/op    6,3x (template.Execute)
-    BenchmarkReplacerM  1000      2198166 ns/op    1,0x (replacer.Replace)
+    BenchmarkNaiveM        1   4317513185 ns/op 3929,6x (strings.Replace)
+    BenchmarkNaive2M     500      6329720 ns/op    5,8x (strings.Replacer)
+    BenchmarkRegM         50     31198202 ns/op   28,4x (regexp.ReplaceAllStringFunc)
+    BenchmarkByteM      1000      1475455 ns/op    1,3x (bytes.Replace)
+    BenchmarkTemplateM   500      6435381 ns/op    5,9x (template.Execute)
+    BenchmarkReplacerM  2000      1098709 ns/op    1,0x (replacer.Replace)
 
 replacing 2 placeholders that occur 1x in the template, parsing template each time (you should not do this)
 
-    BenchmarkOnceNaive     500 ns/op 6145737      1,2x (strings.Replace)
-    BenchmarkOnceReg        50 ns/op 54311308    11,0x (regexp.ReplaceAllStringFunc)
-    BenchmarkOnceByte      500 ns/op 4950499      1,0x (bytes.Replace)
-    BenchmarkOnceTemplate    1 ns/op 2066008619 417,3x (template.Execute)
-    BenchmarkOnceReplacer  200 ns/op 8725035      1,8x (replacer.Replace)
-
+    BenchmarkOnceNaive    1000     3037135 ns/op   1,2x (strings.Replace)
+    BenchmarkOnceNaive2   1000     2600541 ns/op   1,1x (strings.Replacer)
+    BenchmarkOnceReg        50    26540129 ns/op  10,7x (regexp.ReplaceAllStringFunc)
+    BenchmarkOnceByte     1000     2471198 ns/op   1,0x (bytes.Replace)
+    BenchmarkOnceTemplate    5   978977017 ns/op 396,2x (template.Execute)
+    BenchmarkOnceReplacer  500     4572535 ns/op   1,9x (replacer.Replace)
 
 Usage
 -----
