@@ -39,11 +39,25 @@ func (p places) Less(i, j int) bool { return p[i].pos < p[j].pos }
 
 // instead of the real struct we export an interface
 type Replacer interface {
+	// Parses the input for placeholders and caches the result
 	// should be called once per template
+	// must be protected if used concurrently on the same replacer
+	// returns an error if 2 placeholders are directly following
+	// each other without a byte between them
 	Parse([]byte) error
 
-	// bring in your own buffer, allows you to reused it
+	// Replaces the placeholders that are keys in the given map
+	// and writes the resulting bytes to the given buffer.
+	// Be aware that the placeholders must not include the delimiter.
+	// Bring in your own buffer, allows you to reused it
 	Replace(map[string]string, *bytes.Buffer)
+
+	// set the delimiter which surrounds the placeholders
+	// valid delimiters are: (delimiter => example)
+	//     DefaultDelimiter =>  "@@example@@"
+	//     HashDelimiter    =>  "##example##"
+	//     DollarDelimiter  =>  "$$example$$"
+	SetDelimiter(delimiter)
 }
 
 type replace struct {
@@ -54,11 +68,6 @@ type replace struct {
 	lenDel      int
 }
 
-// set the delimiter which surrounds the placeholders
-// valid delimiters are: (delimiter => example)
-//     DefaultDelimiter =>  "@@example@@"
-//     HashDelimiter    =>  "##example##"
-//     DollarDelimiter  =>  "$$example$$"
 func (r *replace) SetDelimiter(del delimiter) {
 	r.delimiter = delimiterBytes[del]
 	r.lenDel = len(r.delimiter)
@@ -72,9 +81,6 @@ func New() Replacer {
 	return r
 }
 
-// Replaces the placeholders that are keys in the given map
-// and writes the resulting bytes to the given buffer.
-// Be aware that the placeholders must not include the delimiter.
 func (r *replace) Replace(m map[string]string, buffer *bytes.Buffer) {
 	last := 0
 	for _, place := range r.places {
@@ -87,10 +93,6 @@ func (r *replace) Replace(m map[string]string, buffer *bytes.Buffer) {
 	buffer.Write(r.original[last:len(r.original)])
 }
 
-// parse the input for placeholders and caches the result
-// must be protected if used concurrently on the same replacer
-// returns an error if 2 placeholders are directly following
-// each other without a byte between them
 func (r *replace) Parse(in []byte) error {
 	r.parseBuffer.Reset()
 	lenIn := len(in)
