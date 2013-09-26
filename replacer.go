@@ -6,11 +6,6 @@ import (
 	"sort"
 )
 
-/*
-   Usage:
-
-   see http://github.com/metakeule/replacer
-*/
 type delimiter int
 
 const (
