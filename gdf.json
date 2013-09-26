@@ -1,7 +1,9 @@
 {
   "Path": "github.com/metakeule/replacer",
   "Exports": {
-    "DefaultDelimiter": "DefaultDelimiter string = \"@@\"",
+    "DefaultDelimiter": "DefaultDelimiter delimiter = iota",
+    "DollarDelimiter": "DollarDelimiter",
+    "HashDelimiter": "HashDelimiter",
     "New": "New() Replacer",
     "Replacer": "type Replacer interface {;  Parse([]byte) error;  Replace(map[string]string,*bytes.Buffer);}"
   },

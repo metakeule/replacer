@@ -11,7 +11,19 @@ import (
 
    see http://github.com/metakeule/replacer
 */
-const DefaultDelimiter = "@@"
+type delimiter int
+
+const (
+	DefaultDelimiter delimiter = iota
+	HashDelimiter
+	DollarDelimiter
+)
+
+var delimiterBytes = map[delimiter][]byte{
+	DefaultDelimiter: []byte("@@"),
+	HashDelimiter:    []byte("##"),
+	DollarDelimiter:  []byte("$$"),
+}
 
 type place struct {
 	pos         int
@@ -42,10 +54,13 @@ type replace struct {
 	lenDel      int
 }
 
-// set the delimiter. it should consist of 2 bytes at least
-// and surrounds the placeholders
-func (r *replace) SetDelimiter(delimiter string) {
-	r.delimiter = []byte(delimiter)
+// set the delimiter which surrounds the placeholders
+// valid delimiters are: (delimiter => example)
+//     DefaultDelimiter =>  "@@example@@"
+//     HashDelimiter    =>  "##example##"
+//     DollarDelimiter  =>  "$$example$$"
+func (r *replace) SetDelimiter(del delimiter) {
+	r.delimiter = delimiterBytes[del]
 	r.lenDel = len(r.delimiter)
 }
 
@@ -57,8 +72,9 @@ func New() Replacer {
 	return r
 }
 
-// replaces the placeholders that are keys in the given map
-// writes the resulting bytes to the given buffer
+// Replaces the placeholders that are keys in the given map
+// and writes the resulting bytes to the given buffer.
+// Be aware that the placeholders must not include the delimiter.
 func (r *replace) Replace(m map[string]string, buffer *bytes.Buffer) {
 	last := 0
 	for _, place := range r.places {
