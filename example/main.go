@@ -22,7 +22,7 @@ func main() {
 
 	var buffer bytes.Buffer
 	// reuse r with a parsed template to speed up replacement
-	r.Replace(m, &buffer)
+	r.Replace(&buffer, m)
 	// after the replacement you may use the buffer methods Bytes(), String(), Write() or WriteTo()
 	// and reuse the same buffer after calling buffer.Reset()
 	fmt.Println(buffer.String())

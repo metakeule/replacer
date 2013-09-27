@@ -12,12 +12,14 @@ const (
 	DefaultDelimiter delimiter = iota
 	HashDelimiter
 	DollarDelimiter
+	PercentDelimiter
 )
 
 var delimiterBytes = map[delimiter][]byte{
-	DefaultDelimiter: []byte("@@"),
-	HashDelimiter:    []byte("##"),
-	DollarDelimiter:  []byte("$$"),
+	DefaultDelimiter: []byte(`@@`),
+	HashDelimiter:    []byte(`##`),
+	DollarDelimiter:  []byte(`$$`),
+	PercentDelimiter: []byte(`%%`),
 }
 
 type place struct {
@@ -45,14 +47,18 @@ type Replacer interface {
 	// and writes the resulting bytes to the given buffer.
 	// Be aware that the placeholders must not include the delimiter.
 	// Bring in your own buffer, allows you to reused it
-	Replace(map[string]string, *bytes.Buffer)
+	Replace(*bytes.Buffer, map[string]string)
 
 	// set the delimiter which surrounds the placeholders
 	// valid delimiters are: (delimiter => example)
 	//     DefaultDelimiter =>  "@@example@@"
 	//     HashDelimiter    =>  "##example##"
 	//     DollarDelimiter  =>  "$$example$$"
+	//     PercentDelimiter  => "%%example%%"
 	SetDelimiter(delimiter)
+
+	// returns the current delimiter, e.g. []byte(`@@`) or []byte(`##`) or []byte(`$$`) or []byte(`%%`)
+	Delimiter() []byte
 }
 
 type replace struct {
@@ -68,6 +74,10 @@ func (r *replace) SetDelimiter(del delimiter) {
 	r.lenDel = len(r.delimiter)
 }
 
+func (r *replace) Delimiter() []byte {
+	return r.delimiter
+}
+
 // returns a new replacer
 func New() Replacer {
 	r := &replace{}
@@ -76,7 +86,7 @@ func New() Replacer {
 	return r
 }
 
-func (r *replace) Replace(m map[string]string, buffer *bytes.Buffer) {
+func (r *replace) Replace(buffer *bytes.Buffer, m map[string]string) {
 	last := 0
 	for _, place := range r.places {
 		buffer.Write(r.original[last:place.pos])

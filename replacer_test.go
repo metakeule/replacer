@@ -30,7 +30,7 @@ func TestReplaceMulti(t *testing.T) {
 	Prepare()
 	repl.Parse(Template)
 	var buffer bytes.Buffer
-	if repl.Replace(Map, &buffer); buffer.String() != Expected {
+	if repl.Replace(&buffer, Map); buffer.String() != Expected {
 		t.Errorf("unexpected result: %#v, expected: %#v", buffer.String(), Expected)
 	}
 }

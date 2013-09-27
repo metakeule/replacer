@@ -1,3 +1,5 @@
+WARNING: ignoring packages in /home/benny/Entwicklung/gopath/.depignore
+
 {
   "Path": "github.com/metakeule/replacer",
   "Exports": {
@@ -5,7 +7,8 @@
     "DollarDelimiter": "DollarDelimiter",
     "HashDelimiter": "HashDelimiter",
     "New": "New() Replacer",
-    "Replacer": "type Replacer interface {;  Parse([]byte) error;  Replace(map[string]string,*bytes.Buffer);}"
+    "PercentDelimiter": "PercentDelimiter",
+    "Replacer": "type Replacer interface {;  Delimiter() []byte;  Parse([]byte) error;  Replace(*bytes.Buffer,map[string]string);  SetDelimiter(delimiter);}"
   },
   "Imports": {},
   "InitMd5": ""

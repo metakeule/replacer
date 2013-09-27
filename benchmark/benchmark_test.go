@@ -137,7 +137,7 @@ func TestReplace(t *testing.T) {
 	}
 
 	var bf bytes.Buffer
-	if repl.Replace(StringMap, &bf); bf.String() != Expected {
+	if repl.Replace(&bf, StringMap); bf.String() != Expected {
 		t.Errorf("unexpected result for %s: %#v", "fastreplace2", bf.String())
 	}
 }
@@ -176,7 +176,7 @@ func TestReplaceN(t *testing.T) {
 	}
 
 	var bf bytes.Buffer
-	if repl.Replace(StringMap, &bf); bf.String() != ExpectedN {
+	if repl.Replace(&bf, StringMap); bf.String() != ExpectedN {
 		t.Errorf("unexpected result for %s: %#v", "fastreplace2", bf.String())
 	}
 }
@@ -221,7 +221,7 @@ func TestReplaceM(t *testing.T) {
 
 	var bf bytes.Buffer
 
-	if repl.Replace(StringMapM, &bf); bf.String() != ExpectedM {
+	if repl.Replace(&bf, StringMapM); bf.String() != ExpectedM {
 		t.Errorf("unexpected result for %s: %#v", "fastreplace2", bf.String())
 	}
 }
@@ -284,7 +284,7 @@ func BenchmarkReplacer(b *testing.B) {
 	var bf bytes.Buffer
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		repl.Replace(StringMap, &bf)
+		repl.Replace(&bf, StringMap)
 		bf.Reset()
 	}
 }
@@ -353,7 +353,7 @@ func BenchmarkReplacerM(b *testing.B) {
 	var bf bytes.Buffer
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		repl.Replace(StringMapM, &bf)
+		repl.Replace(&bf, StringMapM)
 		bf.Reset()
 	}
 }
@@ -403,6 +403,6 @@ func BenchmarkOnceReplacer(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		repl.Parse(ByteN)
 		var bf bytes.Buffer
-		repl.Replace(StringMap, &bf)
+		repl.Replace(&bf, StringMap)
 	}
 }
