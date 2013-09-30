@@ -3,6 +3,7 @@ package replacer
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"sort"
 )
 
@@ -34,34 +35,7 @@ func (p places) Len() int           { return len(p) }
 func (p places) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p places) Less(i, j int) bool { return p[i].pos < p[j].pos }
 
-// instead of the real struct we export an interface
-type Replacer interface {
-	// Parses the input for placeholders and caches the result
-	// should be called once per template
-	// must be protected if used concurrently on the same replacer
-	// returns an error if 2 placeholders are directly following
-	// each other without a byte between them
-	Parse([]byte) error
-
-	// Replaces the placeholders that are keys in the given map
-	// and writes the resulting bytes to the given buffer.
-	// Be aware that the placeholders must not include the delimiter.
-	// Bring in your own buffer, allows you to reused it
-	Replace(*bytes.Buffer, map[string]string)
-
-	// set the delimiter which surrounds the placeholders
-	// valid delimiters are: (delimiter => example)
-	//     DefaultDelimiter =>  "@@example@@"
-	//     HashDelimiter    =>  "##example##"
-	//     DollarDelimiter  =>  "$$example$$"
-	//     PercentDelimiter  => "%%example%%"
-	SetDelimiter(delimiter)
-
-	// returns the current delimiter, e.g. []byte(`@@`) or []byte(`##`) or []byte(`$$`) or []byte(`%%`)
-	Delimiter() []byte
-}
-
-type replace struct {
+type Replacer struct {
 	original    []byte
 	places      places
 	parseBuffer *bytes.Buffer
@@ -69,24 +43,22 @@ type replace struct {
 	lenDel      int
 }
 
-func (r *replace) SetDelimiter(del delimiter) {
+func (r *Replacer) SetDelimiter(del delimiter) {
 	r.delimiter = delimiterBytes[del]
 	r.lenDel = len(r.delimiter)
 }
 
-func (r *replace) Delimiter() []byte {
-	return r.delimiter
-}
+func (r *Replacer) Delimiter() []byte { return r.delimiter }
 
 // returns a new replacer
-func New() Replacer {
-	r := &replace{}
+func New() *Replacer {
+	r := &Replacer{}
 	r.parseBuffer = &bytes.Buffer{}
 	r.SetDelimiter(DefaultDelimiter)
 	return r
 }
 
-func (r *replace) Replace(buffer *bytes.Buffer, m map[string]string) {
+func (r *Replacer) Replace(buffer *bytes.Buffer, m map[string]string) {
 	last := 0
 	for _, place := range r.places {
 		buffer.Write(r.original[last:place.pos])
@@ -98,7 +70,34 @@ func (r *replace) Replace(buffer *bytes.Buffer, m map[string]string) {
 	buffer.Write(r.original[last:len(r.original)])
 }
 
-func (r *replace) Parse(in []byte) error {
+func (r *Replacer) Set(buffer *bytes.Buffer, m map[string]io.WriterTo) (errors map[string]error) {
+	last := 0
+	errors = map[string]error{}
+	for _, place := range r.places {
+		buffer.Write(r.original[last:place.pos])
+		if repl, ok := m[place.placeholder]; ok {
+			_, err := repl.WriteTo(buffer)
+			if err != nil {
+				fmt.Printf("error: %s", err.Error())
+				errors[place.placeholder] = err
+				return
+			}
+		}
+		last = place.pos
+	}
+	buffer.Write(r.original[last:len(r.original)])
+	return
+}
+
+func (r *Replacer) MustParse(in []byte) *Replacer {
+	err := r.Parse(in)
+	if err != nil {
+		panic(fmt.Sprintf("parse error: %s", err.Error()))
+	}
+	return r
+}
+
+func (r *Replacer) Parse(in []byte) error {
 	r.parseBuffer.Reset()
 	lenIn := len(in)
 	r.places = []place{}

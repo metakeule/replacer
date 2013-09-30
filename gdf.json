@@ -1,14 +1,18 @@
-WARNING: ignoring packages in /home/benny/Entwicklung/gopath/.depignore
-
 {
   "Path": "github.com/metakeule/replacer",
   "Exports": {
+    "*Replacer.Delimiter": "(*Replacer) Delimiter() []byte",
+    "*Replacer.MustParse": "(*Replacer) MustParse([]byte) *Replacer",
+    "*Replacer.Parse": "(*Replacer) Parse([]byte) error",
+    "*Replacer.Replace": "(*Replacer) Replace(*bytes.Buffer,map[string]string)",
+    "*Replacer.Set": "(*Replacer) Set(*bytes.Buffer,map[string]io.WriterTo) map[string]error",
+    "*Replacer.SetDelimiter": "(*Replacer) SetDelimiter(delimiter)",
     "DefaultDelimiter": "DefaultDelimiter delimiter = iota",
     "DollarDelimiter": "DollarDelimiter",
     "HashDelimiter": "HashDelimiter",
-    "New": "New() Replacer",
+    "New": "New() *Replacer",
     "PercentDelimiter": "PercentDelimiter",
-    "Replacer": "type Replacer interface {;  Delimiter() []byte;  Parse([]byte) error;  Replace(*bytes.Buffer,map[string]string);  SetDelimiter(delimiter);}"
+    "Replacer": "type Replacer struct{}"
   },
   "Imports": {},
   "InitMd5": ""
