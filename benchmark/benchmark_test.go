@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/metakeule/replacer"
+	"github.com/metakeule/replacer/places"
+	"io"
 	"regexp"
 	"strings"
 	"testing"
@@ -11,18 +13,24 @@ import (
 
 var (
 	StringT   = "a string with @@replacement1@@ and @@replacement2@@ that c@ntinues"
+	StringTx  = "a string with <@replacement1@> and <@replacement2@> that c@ntinues"
 	TemplateT = "a string with {{.replacement1}} and {{.replacement2}} that c@ntinues"
 	ByteT     = []byte(StringT)
+	ByteTx    = []byte(StringTx)
 	Expected  = "a string with repl1 and repl2 that c@ntinues"
 
 	StringN   = ""
+	StringNx  = ""
 	TemplateN = ""
 	ByteN     = []byte{}
+	ByteNx    = []byte{}
 	ExpectedN = ""
 
 	StringM   = ""
+	StringMx  = ""
 	TemplateM = ""
 	ByteM     = []byte{}
+	ByteMx    = []byte{}
 	ExpectedM = ""
 )
 
@@ -42,6 +50,11 @@ var (
 	ByteMap = map[string][]byte{
 		"@@replacement1@@": []byte("repl1"),
 		"@@replacement2@@": []byte("repl2"),
+	}
+
+	seekerMap = map[string]io.ReadSeeker{
+		"replacement1": strings.NewReader("repl1"),
+		"replacement2": strings.NewReader("repl2"),
 	}
 
 	MapM       = map[string]string{}
@@ -65,10 +78,12 @@ func PrepareM() {
 	StringMapM = map[string]string{}
 	StringsM = []string{}
 	s := []string{}
+	sx := []string{}
 	r := []string{}
 	t := []string{}
 	for i := 0; i < 5000; i++ {
 		s = append(s, fmt.Sprintf(`a string with @@replacement%v@@`, i))
+		sx = append(sx, fmt.Sprintf(`a string with <@replacement%v@>`, i))
 		t = append(t, fmt.Sprintf(`a string with {{.replacement%v}}`, i))
 		r = append(r, fmt.Sprintf("a string with repl%v", i))
 		key := fmt.Sprintf("replacement%v", i)
@@ -79,24 +94,31 @@ func PrepareM() {
 		StringsM = append(StringsM, "@@"+key+"@@", val)
 	}
 	StringM = strings.Join(s, "")
+	StringMx = strings.Join(sx, "")
 	TemplateM = strings.Join(t, "")
 	ExpectedM = strings.Join(r, "")
 	ByteM = []byte(StringM)
+	ByteMx = []byte(StringMx)
 }
 
 func PrepareN() {
 	s := []string{}
+	sx := []string{}
 	r := []string{}
 	t := []string{}
 	for i := 0; i < 2500; i++ {
 		s = append(s, StringT)
+		sx = append(sx, StringTx)
 		r = append(r, Expected)
 		t = append(t, TemplateT)
 	}
 	TemplateN = strings.Join(t, "")
 	StringN = strings.Join(s, "")
+	StringNx = strings.Join(sx, "")
 	ExpectedN = strings.Join(r, "")
 	ByteN = []byte(StringN)
+	ByteNx = []byte(StringNx)
+
 }
 
 func TestReplace(t *testing.T) {
@@ -228,6 +250,7 @@ func TestReplaceM(t *testing.T) {
 
 func BenchmarkNaive(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	mapperNaive.Map = Map
 	mapperNaive.Template = StringN
 	b.StartTimer()
@@ -238,6 +261,7 @@ func BenchmarkNaive(b *testing.B) {
 
 func BenchmarkNaive2(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	naive2.Replacements = Strings
 	naive2.Template = StringN
 	b.StartTimer()
@@ -248,6 +272,7 @@ func BenchmarkNaive2(b *testing.B) {
 
 func BenchmarkReg(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	mapperReg.Map = Map
 	mapperReg.Template = StringN
 	mapperReg.Setup()
@@ -259,6 +284,7 @@ func BenchmarkReg(b *testing.B) {
 
 func BenchmarkByte(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	byts.Map = ByteMap
 	byts.Parse(StringN)
 	b.StartTimer()
@@ -268,6 +294,7 @@ func BenchmarkByte(b *testing.B) {
 }
 func BenchmarkTemplate(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	templ.Parse(TemplateN)
 	var tbf bytes.Buffer
 	b.StartTimer()
@@ -275,16 +302,28 @@ func BenchmarkTemplate(b *testing.B) {
 		templ.Replace(StringMap, &tbf)
 		tbf.Reset()
 	}
-
 }
 
 func BenchmarkReplacer(b *testing.B) {
 	b.StopTimer()
+	PrepareN()
 	repl.Parse(ByteN)
 	var bf bytes.Buffer
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		repl.Replace(&bf, StringMap)
+		bf.Reset()
+	}
+}
+
+func BenchmarkPlaces(b *testing.B) {
+	b.StopTimer()
+	PrepareN()
+	var pl = places.Find(ByteNx)
+	var bf bytes.Buffer
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		places.ReplaceString(ByteNx, &bf, pl, StringMap)
 		bf.Reset()
 	}
 }
@@ -358,6 +397,19 @@ func BenchmarkReplacerM(b *testing.B) {
 	}
 }
 
+func BenchmarkPlacesM(b *testing.B) {
+	b.StopTimer()
+	PrepareM()
+	// println(StringMx)
+	var pl = places.Find(ByteMx)
+	var bf bytes.Buffer
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		places.ReplaceString(ByteMx, &bf, pl, StringMapM)
+		bf.Reset()
+	}
+}
+
 func BenchmarkOnceNaive(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		mapperNaive.Map = Map
@@ -404,5 +456,12 @@ func BenchmarkOnceReplacer(b *testing.B) {
 		repl.Parse(ByteN)
 		var bf bytes.Buffer
 		repl.Replace(&bf, StringMap)
+	}
+}
+
+func BenchmarkOncePlaces(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var bf bytes.Buffer
+		places.FindAndReplaceString(ByteNx, &bf, StringMap)
 	}
 }
