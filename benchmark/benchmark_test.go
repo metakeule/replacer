@@ -3,8 +3,8 @@ package benchmark
 import (
 	"bytes"
 	"fmt"
+	"github.com/metakeule/places"
 	"github.com/metakeule/replacer"
-	"github.com/metakeule/replacer/places"
 	"io"
 	"regexp"
 	"strings"
