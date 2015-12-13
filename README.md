@@ -3,7 +3,7 @@ replacer
 
 fast and simple templating for go
 
-This package is no longer maintained in favor of <http://travis-ci.org/metakeule/places>.
+This package is no longer maintained in favor of <http://github.com/metakeule/places>.
 
 [![Build Status](https://secure.travis-ci.org/metakeule/replacer.png)](http://travis-ci.org/metakeule/replacer)
 
