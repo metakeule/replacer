@@ -5,10 +5,11 @@ fast and simple templating for go
 
 [![Build Status](https://secure.travis-ci.org/metakeule/replacer.png)](http://travis-ci.org/metakeule/replacer)
 
-If you need to simply replace placeholders in a template without escaping or logic,
-replacer might be for you.
+If you need to simply replace placeholders in a template without escaping or logic, replacer might be for you.
 
 For the typical scenario - your template never changes on runtime -, replacer is faster than using (strings|bytes).Replace(r)() or regexp.ReplaceAllStringFunc() or the text/template package.
+
+There is also a new subpackage called places which is similar in performance for normal rendering but faster for parsing. It has a different API though.
 
 Performance
 -----------
@@ -41,6 +42,58 @@ replacing 2 placeholders that occur 1x in the template, parsing template each ti
     BenchmarkOnceByte     1000     2471198 ns/op   1,0x (bytes.Replace)
     BenchmarkOnceTemplate    5   978977017 ns/op 396,2x (template.Execute)
     BenchmarkOnceReplacer  500     4572535 ns/op   1,9x (replacer.Replace)
+
+
+places
+========
+
+Usage
+-----
+
+```go
+package main
+
+import (
+    "bytes"
+    "fmt"
+    "github.com/metakeule/replacer/places"
+)
+
+func main() {
+    template := []byte("<@name@>: <@animal@>")    
+    // store the positions once
+    positions := places.Find(template)
+    if err != nil {
+        panic(err.Error())
+    }
+    
+    m := map[string]string{
+        "animal": "Duck",
+        "name":   "Donald",
+    }
+
+    var buffer bytes.Buffer
+    
+    // reuse template and positions to speed up replacement
+    r.ReplaceString(template, &buffer, positions, m)
+    
+    // after the replacement you may use the buffer methods Bytes(), String(), Write() or WriteTo()
+    // and reuse the same buffer after calling buffer.Reset()
+    fmt.Println(buffer.String())
+}
+```
+
+
+results in
+
+```
+Donald: Duck
+```
+
+replacer
+========
+
+For compatibility there is still the more limited and slower parsing `replacer` library:
 
 Usage
 -----
@@ -98,6 +151,7 @@ However, you should be able to combine them in another placeholder and replace t
 As long as 1 byte is between them, it is no problem, e.g.
 
     @@firstname@@ @@lastname@@
+
 
 Status
 ------
