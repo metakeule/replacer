@@ -14,34 +14,40 @@ There is also a new subpackage called places which is similar in performance for
 Performance
 -----------
 
-Runing benchmarks in the benchmark directory, I get the following results:
+Runing benchmarks in the benchmark directory, I get the following results (go1.4 64-bit, linux):
 
 replacing 2 placeholders that occur 2500x in the template
 
-    BenchmarkNaive      500    3035929 ns/op  3,8x (strings.Replace)
-    BenchmarkNaive2    1000    2595076 ns/op  3,2x (strings.Replacer)
-    BenchmarkReg        100   25882258 ns/op 32,3x (regexp.ReplaceAllStringFunc)
-    BenchmarkByte      1000    2210725 ns/op  2,8x (bytes.Replace)
-    BenchmarkTemplate   500    6373070 ns/op  7,9x (template.Execute)
-    BenchmarkReplacer  2000     802490 ns/op  1,0x (replacer.Replace)
+    BenchmarkNaive     500    2780308 ns/op     4 allocs/op   7,54x (strings.Replace)
+    BenchmarkNaive2   2000    1098662 ns/op    13 allocs/op   2,98x (strings.Replacer)
+    BenchmarkReg        50   22916309 ns/op  5024 allocs/op  62,18x (regexp.ReplaceAllStringFunc)
+    BenchmarkByte     1000    2087658 ns/op     4 allocs/op   5,66x (bytes.Replace)
+    BenchmarkTemplate  300    5566514 ns/op 15002 allocs/op  15,10x (template.Execute)
+    BenchmarkReplacer 3000     376034 ns/op     0 allocs/op   1,02x (replacer.Replace)
+    BenchmarkPlaces   3000     368525 ns/op     0 allocs/op   1,00x (places.ReplaceString)
+                                
+
 
 replacing 5000 placeholders that occur 1x in the template
 
-    BenchmarkNaiveM        1   4317513185 ns/op 3929,6x (strings.Replace)
-    BenchmarkNaive2M     500      6329720 ns/op    5,8x (strings.Replacer)
-    BenchmarkRegM         50     31198202 ns/op   28,4x (regexp.ReplaceAllStringFunc)
-    BenchmarkByteM      1000      1475455 ns/op    1,3x (bytes.Replace)
-    BenchmarkTemplateM   500      6435381 ns/op    5,9x (template.Execute)
-    BenchmarkReplacerM  2000      1098709 ns/op    1,0x (replacer.Replace)
+    BenchmarkNaiveM      1 4286720867 ns/op 10000 allocs/op 6673,23x (strings.Replace)
+    BenchmarkNaive2M   500    4019384 ns/op 11007 allocs/op    6,26x (strings.Replacer)
+    BenchmarkRegM       50   27298490 ns/op  5025 allocs/op   42,50x (regexp.ReplaceAllStringFunc)
+    BenchmarkByteM     1000   1626838 ns/op     4 allocs/op    2,53x (bytes.Replace)
+    BenchmarkTemplateM  300   5667141 ns/op 15002 allocs/op    8,82x (template.Execute)
+    BenchmarkReplacerM 2000    643043 ns/op     0 allocs/op    1,00x (replacer.Replace)
+    BenchmarkPlacesM   2000    642376 ns/op     0 allocs/op    1,00x (places.ReplaceString)
+                                
 
-replacing 2 placeholders that occur 1x in the template, parsing template each time (you should not do this)
+replacing 2 placeholders that occur 1x in the template, parsing template each time (you should not do this until you need it)
 
-    BenchmarkOnceNaive    1000     3037135 ns/op   1,2x (strings.Replace)
-    BenchmarkOnceNaive2   1000     2600541 ns/op   1,1x (strings.Replacer)
-    BenchmarkOnceReg        50    26540129 ns/op  10,7x (regexp.ReplaceAllStringFunc)
-    BenchmarkOnceByte     1000     2471198 ns/op   1,0x (bytes.Replace)
-    BenchmarkOnceTemplate    5   978977017 ns/op 396,2x (template.Execute)
-    BenchmarkOnceReplacer  500     4572535 ns/op   1,9x (replacer.Replace)
+    BenchmarkOnceNaive    500   2759530 ns/op     4 allocs/op   2,45x (strings.Replace)
+    BenchmarkOnceNaive2  2000   1127832 ns/op    13 allocs/op   1,00x (strings.Replacer)
+    BenchmarkOnceReg       50  23076371 ns/op  5024 allocs/op  20,46x (regexp.ReplaceAllStringFunc)
+    BenchmarkOnceByte    1000   2336374 ns/op     6 allocs/op   2,07x (bytes.Replace)
+    BenchmarkOnceTemplate   2 917598881 ns/op 60058 allocs/op 813,60x (template.Execute)
+    BenchmarkOnceReplacer 500   3510982 ns/op  5025 allocs/op   3,11x (replacer.Replace)
+    BenchmarkOncePlaces  1000   1808015 ns/op    26 allocs/op   1,60x (places.ReplaceString)
 
 
 places
