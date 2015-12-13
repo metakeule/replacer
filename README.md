@@ -66,13 +66,13 @@ import (
 )
 
 func main() {
-    // store the positions once
+    // parse the template once
     template := places.NewTemplate([]byte("<@name@>: <@animal@>"))    
     
-    var buffer bytes.Buffer
     
     // reuse it to speed up replacement
-    template.ReplaceString(&buffer, map[string]string{"animal": "Duck","name":   "Donald"})
+    var buffer bytes.Buffer
+    template.ReplaceString(&buffer, map[string]string{"animal": "Duck","name": "Donald"})
 
     // there are alternative methods for Bytes, io.ReadSeeker etc.
     
