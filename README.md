@@ -67,11 +67,9 @@ import (
 
 func main() {
     template := []byte("<@name@>: <@animal@>")    
+    
     // store the positions once
     positions := places.Find(template)
-    if err != nil {
-        panic(err.Error())
-    }
     
     m := map[string]string{
         "animal": "Duck",
@@ -81,7 +79,7 @@ func main() {
     var buffer bytes.Buffer
     
     // reuse template and positions to speed up replacement
-    r.ReplaceString(template, &buffer, positions, m)
+    places.ReplaceString(template, &buffer, positions, m)
     
     // after the replacement you may use the buffer methods Bytes(), String(), Write() or WriteTo()
     // and reuse the same buffer after calling buffer.Reset()
