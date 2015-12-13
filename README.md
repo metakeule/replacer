@@ -94,6 +94,11 @@ results in
 Donald: Duck
 ```
 
+Documentation (GoDoc)
+---------------------
+
+see https://godoc.org/github.com/metakeule/replacer/places
+
 replacer
 ========
 
