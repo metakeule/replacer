@@ -30,13 +30,13 @@ replacing 2 placeholders that occur 2500x in the template
 
 replacing 5000 placeholders that occur 1x in the template
 
-    BenchmarkNaiveM      1 4286720867 ns/op 10000 allocs/op 6673,23x (strings.Replace)
-    BenchmarkNaive2M   500    4019384 ns/op 11007 allocs/op    6,26x (strings.Replacer)
-    BenchmarkRegM       50   27298490 ns/op  5025 allocs/op   42,50x (regexp.ReplaceAllStringFunc)
-    BenchmarkByteM     1000   1626838 ns/op     4 allocs/op    2,53x (bytes.Replace)
-    BenchmarkTemplateM  300   5667141 ns/op 15002 allocs/op    8,82x (template.Execute)
-    BenchmarkReplacerM 2000    643043 ns/op     0 allocs/op    1,00x (replacer.Replace)
-    BenchmarkPlacesM   2000    642376 ns/op     0 allocs/op    1,00x (places.ReplaceString)
+    BenchmarkNaiveM       1 4286720867 ns/op 10000 allocs/op 6673,23x (strings.Replace)
+    BenchmarkNaive2M    500    4019384 ns/op 11007 allocs/op    6,26x (strings.Replacer)
+    BenchmarkRegM        50   27298490 ns/op  5025 allocs/op   42,50x (regexp.ReplaceAllStringFunc)
+    BenchmarkByteM     1000    1626838 ns/op     4 allocs/op    2,53x (bytes.Replace)
+    BenchmarkTemplateM  300    5667141 ns/op 15002 allocs/op    8,82x (template.Execute)
+    BenchmarkReplacerM 2000     643043 ns/op     0 allocs/op    1,00x (replacer.Replace)
+    BenchmarkPlacesM   2000     642376 ns/op     0 allocs/op    1,00x (places.ReplaceString)
                                 
 
 replacing 2 placeholders that occur 1x in the template, parsing template each time (you should not do this until you need it)
