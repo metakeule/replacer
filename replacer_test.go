@@ -7,31 +7,33 @@ import (
 	"testing"
 )
 
-var Template = []byte{}
-var Expected = ""
-var Map = map[string]string{}
+var _template = []byte{}
+var expected = ""
+var _map = map[string]string{}
 
 func Prepare() {
-	Map = map[string]string{}
+	_map = map[string]string{}
 	orig := []string{}
+	orig2 := []string{}
 	exp := []string{}
 	for i := 0; i < 5; i++ {
 		orig = append(orig, fmt.Sprintf(`a string with @@replacement%v@@`, i))
+		orig2 = append(orig2, fmt.Sprintf(`a string with <@replacement%v@>`, i))
 		exp = append(exp, fmt.Sprintf("a string with repl%v", i))
-		Map[fmt.Sprintf("replacement%v", i)] = fmt.Sprintf("repl%v", i)
+		_map[fmt.Sprintf("replacement%v", i)] = fmt.Sprintf("repl%v", i)
 	}
-	Expected = strings.Join(exp, "")
-	Template = []byte(strings.Join(orig, ""))
+	expected = strings.Join(exp, "")
+	_template = []byte(strings.Join(orig, ""))
 }
 
 var repl = New()
 
 func TestReplaceMulti(t *testing.T) {
 	Prepare()
-	repl.Parse(Template)
+	repl.Parse(_template)
 	var buffer bytes.Buffer
-	if repl.Replace(&buffer, Map); buffer.String() != Expected {
-		t.Errorf("unexpected result: %#v, expected: %#v", buffer.String(), Expected)
+	if repl.Replace(&buffer, _map); buffer.String() != expected {
+		t.Errorf("unexpected result: %#v, expected: %#v", buffer.String(), expected)
 	}
 }
 
