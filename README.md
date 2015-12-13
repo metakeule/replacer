@@ -14,7 +14,7 @@ There is also a new subpackage called places which is similar in performance for
 Performance
 -----------
 
-Runing benchmarks in the benchmark directory, I get the following results (go1.4 64-bit, linux):
+Runing benchmarks in the benchmark directory, I get the following results (go1.4, linux64):
 
 replacing 2 placeholders that occur 2500x in the template
 
