@@ -3,13 +3,13 @@ replacer
 
 fast and simple templating for go
 
+This package is no longer maintained in favor of <http://travis-ci.org/metakeule/places>.
+
 [![Build Status](https://secure.travis-ci.org/metakeule/replacer.png)](http://travis-ci.org/metakeule/replacer)
 
 If you need to simply replace placeholders in a template without escaping or logic, replacer might be for you.
 
 For the typical scenario - your template never changes on runtime -, replacer is faster than using (strings|bytes).Replace(r)() or regexp.ReplaceAllStringFunc() or the text/template package.
-
-There is also a new subpackage called places which is similar in performance for normal rendering but faster for parsing. It has a different API though.
 
 Performance
 -----------
@@ -24,7 +24,6 @@ replacing 2 placeholders that occur 2500x in the template
     BenchmarkByte     1000    2087658 ns/op     4 allocs/op   5,66x (bytes.Replace)
     BenchmarkTemplate  300    5566514 ns/op 15002 allocs/op  15,10x (template.Execute)
     BenchmarkReplacer 3000     376034 ns/op     0 allocs/op   1,02x (replacer.Replace)
-    BenchmarkPlaces   3000     368525 ns/op     0 allocs/op   1,00x (places.ReplaceString)
                                 
 
 
@@ -36,7 +35,6 @@ replacing 5000 placeholders that occur 1x in the template
     BenchmarkByteM     1000    1626838 ns/op     4 allocs/op    2,53x (bytes.Replace)
     BenchmarkTemplateM  300    5667141 ns/op 15002 allocs/op    8,82x (template.Execute)
     BenchmarkReplacerM 2000     643043 ns/op     0 allocs/op    1,00x (replacer.Replace)
-    BenchmarkPlacesM   2000     642376 ns/op     0 allocs/op    1,00x (places.ReplaceString)
                                 
 
 replacing 2 placeholders that occur 1x in the template, parsing template each time (you should not do this until you need it)
@@ -47,57 +45,7 @@ replacing 2 placeholders that occur 1x in the template, parsing template each ti
     BenchmarkOnceByte    1000   2336374 ns/op     6 allocs/op   2,07x (bytes.Replace)
     BenchmarkOnceTemplate   2 917598881 ns/op 60058 allocs/op 813,60x (template.Execute)
     BenchmarkOnceReplacer 500   3510982 ns/op  5025 allocs/op   3,11x (replacer.Replace)
-    BenchmarkOncePlaces  1000   1808015 ns/op    26 allocs/op   1,60x (places.ReplaceString)
 
-
-places
-========
-
-Usage
------
-
-```go
-package main
-
-import (
-    "bytes"
-    "fmt"
-    "github.com/metakeule/replacer/places"
-)
-
-func main() {
-    // parse the template once
-    template := places.NewTemplate([]byte("<@name@>: <@animal@>"))    
-    
-    
-    // reuse it to speed up replacement
-    var buffer bytes.Buffer
-    template.ReplaceString(&buffer, map[string]string{"animal": "Duck","name": "Donald"})
-
-    // there are alternative methods for Bytes, io.ReadSeeker etc.
-    
-    // after the replacement you may use the buffer methods Bytes(), String(), Write() or WriteTo()
-    // and reuse the same buffer after calling buffer.Reset()
-    fmt.Println(buffer.String())
-}
-```
-
-
-results in
-
-```
-Donald: Duck
-```
-
-Documentation (GoDoc)
----------------------
-
-see https://godoc.org/github.com/metakeule/replacer/places
-
-replacer
-========
-
-For compatibility there is still the more limited and slower parsing `replacer` library:
 
 Usage
 -----
