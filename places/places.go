@@ -124,7 +124,7 @@ func Replace(template []byte, bf Buffer, places []int, replacements map[string]i
 }
 
 // The Buffer interface is fullfilled by *bytes.Buffer. However since for performance reasons
-// the errors from writing to the buffer are always ignored, a buffer wrapper is needed to capture them.
+// the errors from writing to the buffer are always ignored, you will need to write a buffer wrapper to capture them.
 type Buffer interface {
 	io.Writer
 	WriteString(string) (int, error)
